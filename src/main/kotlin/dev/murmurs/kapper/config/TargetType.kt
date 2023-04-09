@@ -1,4 +1,4 @@
-package dev.murmur.kapper.config
+package dev.murmurs.kapper.config
 
 import kotlin.reflect.KClass
 

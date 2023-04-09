@@ -1,15 +1,15 @@
-package dev.murmur.kapper
+package dev.murmurs.kapper
 
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
-import dev.murmur.kapper.config.Mapper
+import dev.murmurs.kapper.config.Mapper
 
 class MapperProcessor(
     private val logger: KSPLogger,
-    private val mapperVisitor: MapperVisitor
+    private val mapperVisitor: dev.murmurs.kapper.MapperVisitor
 ) : SymbolProcessor {
 
     override fun process(resolver: Resolver): List<KSAnnotated> {

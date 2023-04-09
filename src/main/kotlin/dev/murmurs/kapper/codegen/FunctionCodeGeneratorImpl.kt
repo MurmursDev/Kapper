@@ -1,4 +1,4 @@
-package dev.murmur.kapper.codegen
+package dev.murmurs.kapper.codegen
 
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.*
@@ -6,10 +6,10 @@ import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
-import dev.murmur.kapper.config.MultipleTarget
-import dev.murmur.kapper.config.MultipleTargetConfiguration
-import dev.murmur.kapper.config.TargetType
-import dev.murmur.kapper.config.TargetTypeConfiguration
+import dev.murmurs.kapper.config.MultipleTarget
+import dev.murmurs.kapper.config.MultipleTargetConfiguration
+import dev.murmurs.kapper.config.TargetType
+import dev.murmurs.kapper.config.TargetTypeConfiguration
 
 class FunctionCodeGeneratorImpl(
     private val logger: KSPLogger,

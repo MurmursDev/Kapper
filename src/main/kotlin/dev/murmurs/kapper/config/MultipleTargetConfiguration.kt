@@ -1,4 +1,4 @@
-package dev.murmur.kapper.config
+package dev.murmurs.kapper.config
 
 import com.google.devtools.ksp.symbol.KSType
 

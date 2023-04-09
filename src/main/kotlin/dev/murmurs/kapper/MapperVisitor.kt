@@ -1,6 +1,6 @@
-package dev.murmur.kapper
+package dev.murmurs.kapper
 
-import dev.murmur.kapper.codegen.FunctionCodeGenerator
+import dev.murmurs.kapper.codegen.FunctionCodeGenerator
 import com.google.devtools.ksp.getDeclaredFunctions
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
@@ -10,7 +10,7 @@ import com.google.devtools.ksp.symbol.KSVisitorVoid
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.TypeSpec
-import dev.murmur.kapper.transformer.PropertyConversion
+import dev.murmurs.kapper.transformer.PropertyConversion
 
 class MapperVisitor(
     private val logger: KSPLogger,

@@ -1,4 +1,4 @@
-package dev.murmur.kapper.codegen
+package dev.murmurs.kapper.codegen
 
 import com.google.devtools.ksp.symbol.KSType
 import com.squareup.kotlinpoet.CodeBlock

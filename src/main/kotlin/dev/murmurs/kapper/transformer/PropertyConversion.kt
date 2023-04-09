@@ -1,4 +1,4 @@
-package dev.murmur.kapper.transformer
+package dev.murmurs.kapper.transformer
 
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration

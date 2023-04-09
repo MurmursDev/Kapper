@@ -1,11 +1,11 @@
-package dev.murmur.kapper.codegen
+package dev.murmurs.kapper.codegen
 
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.Nullability
 import com.squareup.kotlinpoet.CodeBlock
-import dev.murmur.kapper.transformer.PropertyConversion
+import dev.murmurs.kapper.transformer.PropertyConversion
 
 class PropertyCodeGeneratorImpl(private val logger: KSPLogger, private val propertyConversion: PropertyConversion) :
     PropertyCodeGenerator {

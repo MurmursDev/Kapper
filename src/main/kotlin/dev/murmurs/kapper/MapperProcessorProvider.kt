@@ -1,12 +1,12 @@
-package dev.murmur.kapper
+package dev.murmurs.kapper
 
-import dev.murmur.kapper.codegen.FunctionCodeGeneratorImpl
-import dev.murmur.kapper.codegen.InstantiationCodeGeneratorImpl
-import dev.murmur.kapper.codegen.PropertyCodeGeneratorImpl
+import dev.murmurs.kapper.codegen.FunctionCodeGeneratorImpl
+import dev.murmurs.kapper.codegen.InstantiationCodeGeneratorImpl
+import dev.murmurs.kapper.codegen.PropertyCodeGeneratorImpl
 import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.processing.SymbolProcessorProvider
-import dev.murmur.kapper.transformer.PropertyConversionImpl
+import dev.murmurs.kapper.transformer.PropertyConversionImpl
 
 class MapperProcessorProvider : SymbolProcessorProvider {
     override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor {
@@ -21,6 +21,6 @@ class MapperProcessorProvider : SymbolProcessorProvider {
             MapperVisitor(environment.logger, environment.codeGenerator, functionCodeGenerator, propertyConversion)
 
 
-        return MapperProcessor(environment.logger, mapperVisitor)
+        return dev.murmurs.kapper.MapperProcessor(environment.logger, mapperVisitor)
     }
 }

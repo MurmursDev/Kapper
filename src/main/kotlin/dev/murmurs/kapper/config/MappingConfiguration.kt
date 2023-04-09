@@ -1,9 +1,8 @@
-package dev.murmur.kapper.config
+package dev.murmurs.kapper.config
 
-annotation class Mapping(
+data class MappingConfiguration(
     val target: String,
     val source: String = "",
     val ignore: Boolean = false,
     val defaultValue: String = "",
 )
-

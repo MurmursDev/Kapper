@@ -1,10 +1,10 @@
-package dev.murmur.kapper.codegen
+package dev.murmurs.kapper.codegen
 
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
-import dev.murmur.kapper.config.MultipleTargetConfiguration
-import dev.murmur.kapper.transformer.PropertyConversion
+import dev.murmurs.kapper.config.MultipleTargetConfiguration
+import dev.murmurs.kapper.transformer.PropertyConversion
 
 
 class InstantiationCodeGeneratorImpl(private val propertyConversion: PropertyConversion) : InstantiationCodeGenerator {

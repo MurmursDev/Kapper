@@ -1,4 +1,4 @@
-package dev.murmur.kapper.transformer
+package dev.murmurs.kapper.transformer
 
 interface PropertyTransformer<I,O> {
 
