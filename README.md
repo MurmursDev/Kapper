@@ -1,3 +1,8 @@
+
+![Maven metadata URL](https://img.shields.io/maven-metadata/v?metadataUrl=https%3A%2F%2Fs01.oss.sonatype.org%2Fcontent%2Frepositories%2Freleases%2Fdev%2Fmurmurs%2Fkapper%2Fkapper%2Fmaven-metadata.xml&color=brightgreen)
+![GitHub](https://img.shields.io/github/license/murmursdev/kapper?color=brightgreen)
+[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg)](https://github.com/murmursdev/kapper/issues)
+
 # Kapper
 
 Kapper is a code generator for Kotlin that simplifies mapping between data classes.
@@ -12,7 +17,7 @@ Add the following to your `build.gradle.kts` file:
 
 ```kotlin
 dependencies {
-    implementation("dev.murmurs.kapper:kapper:0.1.0")
+    implementation("dev.murmurs.kapper:kapper:0.0.1-alpha")
 }
 ```
 
@@ -104,7 +109,7 @@ interface ActivityMapper {
 ```
 
 ## TODO List
-- [ ] Publish to maven central repository
+- [x] Publish to maven central repository
 - [ ] Add unit tests
 - [ ] Add examples to project
 - [ ] Support ignore, rename and default values
