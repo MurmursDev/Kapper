@@ -12,7 +12,7 @@ plugins {
 }
 
 group = "dev.murmurs.kapper"
-version = "0.0.1"
+version = "0.1.0"
 
 dependencies {
     implementation(kotlin("stdlib"))
