@@ -16,7 +16,7 @@ class InstantiationCodeGeneratorImpl(private val propertyConversion: PropertyCon
         val caseVariable = propertyConversion.convert(
             sourceParameterName,
             multipleTargetConfiguration.discriminator,
-            multipleTargetConfiguration.discriminatorType.declaration as   KSClassDeclaration,
+            multipleTargetConfiguration.discriminatorType.declaration as KSClassDeclaration,
             String::class
         )
         val codeBlockBuilder = CodeBlock.builder()
@@ -48,7 +48,6 @@ class InstantiationCodeGeneratorImpl(private val propertyConversion: PropertyCon
 
         val codeBlockBuilder = CodeBlock.builder()
         codeBlockBuilder.add("return %T(", ClassName.bestGuess(returnType.qualifiedName!!.asString()))
-
         generateInstantiationCode(returnType, convertedProperties, codeBlockBuilder)
         codeBlockBuilder.add(")")
 
@@ -58,25 +57,24 @@ class InstantiationCodeGeneratorImpl(private val propertyConversion: PropertyCon
     private fun generateInstantiationCode(
         returnType: KSClassDeclaration, convertedProperties: List<String>, codeBlockBuilder: CodeBlock.Builder
     ) {
+        val initializedProperties = mutableListOf<String>()
         returnType.primaryConstructor?.parameters?.forEach {
             val parameterName = it.name!!.asString()
             if (convertedProperties.contains(parameterName)) {
-                codeBlockBuilder.add("%L=%L,", parameterName, parameterName)
+                initializedProperties.add("$parameterName = $parameterName")
             } else {
                 if (it.hasDefault) {
-                    //do nothing
-                } else if (it.hasDefault) {
-                    codeBlockBuilder.add("%L=%L,", parameterName, parameterName)
+                    //skip initializing default value
                 } else {
                     if (it.type.resolve().isMarkedNullable) {
-                        codeBlockBuilder.add("%L=null,", parameterName)
+                        initializedProperties.add("$parameterName = null")
                     } else {
                         // not nullable, no default value, no source property, throw exception
                         throw IllegalArgumentException("$parameterName has no default value, no source property, and is not nullable, cannot be instantiated")
                     }
                 }
-
             }
         }
+        codeBlockBuilder.add(initializedProperties.joinToString(", "))
     }
 }

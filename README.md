@@ -7,7 +7,7 @@
 
 Kapper is a code generator for Kotlin that simplifies mapping between data classes.
 
-It was designed to map one class to a interface which has multiple implementations.
+It was designed to map one class to an interface which has multiple implementations.
 
 ## Usage
 
@@ -17,7 +17,7 @@ Add the following to your `build.gradle.kts` file:
 
 ```kotlin
 dependencies {
-    implementation("dev.murmurs.kapper:kapper:0.0.1-alpha")
+    implementation("dev.murmurs.kapper:kapper:${latest}")
 }
 ```
 
@@ -110,6 +110,7 @@ interface ActivityMapper {
 
 ## TODO List
 - [x] Publish to maven central repository
-- [ ] Add unit tests
-- [ ] Add examples to project
-- [ ] Support ignore, rename and default values
+- [x] Add integration test
+- [x] Add examples to project
+- [x] Support ignore, rename and default values
+- [x] Support nullable to non-nullable conversion

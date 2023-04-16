@@ -21,5 +21,14 @@ interface PropertyConversion {
         targetPropertyType: KClass<*>
     ): CodeBlock
 
+    fun convert(
+        sourceParameterName: String,
+        sourcePropertyName: String,
+        sourcePropertyType: KClass<*>,
+        targetPropertyType: KSClassDeclaration
+    ): CodeBlock
+
+
     fun registerImplementedMapper(mapper: KSFunctionDeclaration)
+    fun convert(sourceName: String, sourcePropertyType: String, targetPropertyType: String): CodeBlock
 }

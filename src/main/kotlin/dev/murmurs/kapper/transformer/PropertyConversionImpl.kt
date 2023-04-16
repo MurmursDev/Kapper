@@ -25,19 +25,17 @@ class PropertyConversionImpl(private val logger: KSPLogger) : PropertyConversion
         sourcePropertyType: KSClassDeclaration,
         targetPropertyType: KSClassDeclaration
     ): CodeBlock {
-        return if (sourcePropertyType.classKind == ClassKind.ENUM_CLASS && targetPropertyType.qualifiedName!!.asString() == String::class.qualifiedName) {
-            convert(
-                "${sourceParameterName}.${sourcePropertyName}",
-                GENERIC_ENUM_TYPE_NAME,
-                targetPropertyType.qualifiedName!!.asString()
-            )
+        val sourcePropertyTypeName = if (sourcePropertyType.classKind == ClassKind.ENUM_CLASS) {
+            GENERIC_ENUM_TYPE_NAME
         } else {
-            convert(
-                "${sourceParameterName}.${sourcePropertyName}",
-                sourcePropertyType.qualifiedName!!.asString(),
-                targetPropertyType.qualifiedName!!.asString()
-            )
+            sourcePropertyType.qualifiedName!!.asString()
         }
+
+        return convert(
+            "${sourceParameterName}.${sourcePropertyName}",
+            sourcePropertyTypeName,
+            targetPropertyType.qualifiedName!!.asString()
+        )
     }
 
     override fun convert(
@@ -46,22 +44,34 @@ class PropertyConversionImpl(private val logger: KSPLogger) : PropertyConversion
         sourcePropertyType: KSClassDeclaration,
         targetPropertyType: KClass<*>
     ): CodeBlock {
-        return if (sourcePropertyType.classKind == ClassKind.ENUM_CLASS && targetPropertyType == String::class) {
-            convert(
-                "${sourceParameterName}.${sourcePropertyName}",
-                GENERIC_ENUM_TYPE_NAME,
-                targetPropertyType.qualifiedName!!
-            )
+        val sourcePropertyTypeName = if (sourcePropertyType.classKind == ClassKind.ENUM_CLASS) {
+            GENERIC_ENUM_TYPE_NAME
         } else {
-            convert(
-                "${sourceParameterName}.${sourcePropertyName}",
-                sourcePropertyType.qualifiedName!!.asString(),
-                targetPropertyType.qualifiedName!!
-            )
+            sourcePropertyType.qualifiedName!!.asString()
         }
+
+        return convert(
+            "${sourceParameterName}.${sourcePropertyName}",
+            sourcePropertyTypeName,
+            targetPropertyType.qualifiedName!!
+        )
     }
 
-    private fun convert(
+    override fun convert(
+        sourceParameterName: String,
+        sourcePropertyName: String,
+        sourcePropertyType: KClass<*>,
+        targetPropertyType: KSClassDeclaration
+    ): CodeBlock {
+        //check if source property type is enum class
+        return convert(
+            "${sourceParameterName}.${sourcePropertyName}",
+            sourcePropertyType.qualifiedName!!,
+            targetPropertyType.qualifiedName!!.asString()
+        )
+    }
+
+    override fun convert(
         sourceName: String,
         sourcePropertyType: String,
         targetPropertyType: String
@@ -69,6 +79,11 @@ class PropertyConversionImpl(private val logger: KSPLogger) : PropertyConversion
         logger.info("retrieving mapper for $sourcePropertyType to $targetPropertyType")
         val mapperMapKey = MapperMapKey(sourcePropertyType, targetPropertyType)
         logger.info("hash code for mapper map key is ${mapperMapKey.hashCode()}")
+
+        if (sourcePropertyType == targetPropertyType) {
+            return CodeBlock.of(sourceName)
+        }
+
         var mapper = doubleMatchStringMapper[mapperMapKey]
         logger.info("current map entries")
         for (mutableEntry in doubleMatchStringMapper) {
@@ -171,16 +186,6 @@ class PropertyConversionImpl(private val logger: KSPLogger) : PropertyConversion
 
 
     init {
-        registerBlockCodeGenerator(
-            String::class,
-            String::class,
-            object : CodeBlockGenerator {
-                override fun generate(inputName: String): CodeBlock {
-                    return CodeBlock.of("%L", inputName)
-                }
-            }
-        )
-
         registerBlockCodeGenerator(
             String::class,
             Int::class,

@@ -6,19 +6,16 @@ import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
-import dev.murmurs.kapper.config.MultipleTarget
-import dev.murmurs.kapper.config.MultipleTargetConfiguration
-import dev.murmurs.kapper.config.TargetType
-import dev.murmurs.kapper.config.TargetTypeConfiguration
+import dev.murmurs.kapper.config.*
 
 class FunctionCodeGeneratorImpl(
     private val logger: KSPLogger,
     private val propertyCodeGenerator: PropertyCodeGenerator,
     private val instantiationCodeGenerator: InstantiationCodeGenerator
 ) : FunctionCodeGenerator {
+
     override fun generateCode(mappingFunction: KSFunctionDeclaration): FunSpec {
         // check function is not abstract
-
 
         val returnType = mappingFunction.returnType?.resolve()
             ?: throw IllegalArgumentException("Return type of the mapping function should be an interface")
@@ -45,13 +42,19 @@ class FunctionCodeGeneratorImpl(
         logger.info("return type is ${returnDeclaration.qualifiedName?.asString()}")
         logger.info("the primary constructor of return type is ${returnDeclaration.primaryConstructor}")
 
-        val multipleTargetConfiguration =
-            mappingFunction
-                .annotations
-                .filter {
-                    it.annotationType.resolve().declaration.qualifiedName?.asString() == MultipleTarget::class.qualifiedName
-                }.map { convertMappingAnnotation(it, sourceProperties) }
-                .firstOrNull()
+        var multipleTargetConfiguration: MultipleTargetConfiguration? = null
+
+        val mappings = hashMapOf<String, MappingConfiguration>()
+        mappingFunction.annotations.forEach {
+            val annotationName = it.annotationType.resolve().declaration.qualifiedName?.asString()
+            if (annotationName == Mapping::class.qualifiedName) {
+                val mappingConfiguration = extractMappingAnnotation(it)
+                mappings[mappingConfiguration.target] = mappingConfiguration
+            } else if (annotationName == MultipleTarget::class.qualifiedName && multipleTargetConfiguration == null) {
+                multipleTargetConfiguration = convertMappingAnnotation(it, sourceProperties)
+            }
+        }
+        MappingsConfiguration(mappings.toMap())
 
         val targetProperties: List<Pair<String, KSType>> = if (multipleTargetConfiguration == null) {
             val returnTypePrimaryConstructor = returnDeclaration.primaryConstructor
@@ -78,9 +81,19 @@ class FunctionCodeGeneratorImpl(
          *  convert all targetProperties to code block
          */
         targetProperties.forEach { targetProperty ->
+            val mappingConfiguration = mappings[targetProperty.first]
+            if (mappingConfiguration?.ignore == true) {
+                return@forEach
+            }
+
             val sourceProperty =
-                sourceProperties.filter { it.simpleName.getShortName() == targetProperty.first }
-                    .firstOrNull()
+                if (mappingConfiguration == null) {
+                    sourceProperties.filter { it.simpleName.getShortName() == targetProperty.first }
+                        .firstOrNull()
+                } else {
+                    sourceProperties.filter { it.simpleName.getShortName() == mappingConfiguration.source }
+                        .firstOrNull()
+                }
 
             if (sourceProperty != null) {
                 logger.info("source property: ${sourceProperty.qualifiedName?.asString()}")
@@ -89,16 +102,24 @@ class FunctionCodeGeneratorImpl(
                     sourceProperty.simpleName.asString(),
                     sourceProperty.type.resolve(),
                     targetProperty.first,
-                    targetProperty.second
+                    targetProperty.second,
+                    mappingConfiguration
                 )
                 convertedProperties.add(targetProperty.first)
+                funSpecBuilder.addCode(propertyConversionCode)
+            } else if (mappingConfiguration?.defaultValue != null) {
+                val propertyConversionCode = propertyCodeGenerator.generateCode(
+                    targetProperty.second,
+                    mappingConfiguration
+                )
+                convertedProperties.add(mappingConfiguration.target)
                 funSpecBuilder.addCode(propertyConversionCode)
             }
         }
 
         val instantiation = if (multipleTargetConfiguration != null) {
             instantiationCodeGenerator.generateCode(
-                multipleTargetConfiguration,
+                multipleTargetConfiguration!!,
                 sourceParameterName,
                 convertedProperties
             )
@@ -165,5 +186,21 @@ class FunctionCodeGeneratorImpl(
         return MultipleTargetConfiguration(discriminator, discriminatorType, targetTypes)
     }
 
-
+    private fun extractMappingAnnotation(it: KSAnnotation): MappingConfiguration {
+        val target = it.arguments.find { it.name?.asString() == Mapping::target.name }
+            ?: throw IllegalArgumentException("The mapping function must have a target parameter")
+        val source = it.arguments.find { it.name?.asString() == Mapping::source.name }
+            ?: throw IllegalArgumentException("The mapping function must have a source parameter")
+        val ignore = it.arguments.find { it.name?.asString() == Mapping::ignore.name }
+            ?: throw IllegalArgumentException("The mapping function must have a ignore parameter")
+        val defaultValue = it.arguments.find { it.name?.asString() == Mapping::defaultValue.name }
+            ?: throw IllegalArgumentException("The mapping function must have a defaultValue parameter")
+        return MappingConfiguration(
+            target = target.value?.toString()
+                ?: throw IllegalArgumentException("The mapping function must have a target parameter"),
+            source = source.value as? String ?: "",
+            ignore = ignore.value as? Boolean ?: false,
+            defaultValue = defaultValue.value as? String ?: ""
+        )
+    }
 }

@@ -5,6 +5,7 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.Nullability
 import com.squareup.kotlinpoet.CodeBlock
+import dev.murmurs.kapper.config.MappingConfiguration
 import dev.murmurs.kapper.transformer.PropertyConversion
 
 class PropertyCodeGeneratorImpl(private val logger: KSPLogger, private val propertyConversion: PropertyConversion) :
@@ -14,35 +15,56 @@ class PropertyCodeGeneratorImpl(private val logger: KSPLogger, private val prope
         sourcePropertyName: String,
         sourcePropertyType: KSType,
         targetPropertyName: String,
-        targetPropertyType: KSType
+        targetPropertyType: KSType,
+        mappingConfiguration: MappingConfiguration?
     ): CodeBlock {
+        val codeBlockBuilder = CodeBlock.builder()
+        codeBlockBuilder.add("val %L = ", targetPropertyName)
+        val conversionCode = propertyConversion.convert(
+            sourceParameterName,
+            sourcePropertyName,
+            sourcePropertyType.declaration as KSClassDeclaration,
+            targetPropertyType.declaration as KSClassDeclaration
+        )
 
-        return if (sourcePropertyType.nullability == Nullability.NULLABLE && targetPropertyType.nullability == Nullability.NOT_NULL) {
-            throw IllegalArgumentException("The source type is nullable but the return type is not nullable")
-        } else {
-            val codeBlockBuilder = CodeBlock.builder()
-            codeBlockBuilder.add("val %L = ", targetPropertyName)
-            val needHandlerNullable =
-                sourcePropertyType.nullability == Nullability.NULLABLE && targetPropertyType.nullability == Nullability.NULLABLE
-            val conversionCode = propertyConversion.convert(
-                sourceParameterName,
-                sourcePropertyName,
-                sourcePropertyType.declaration as KSClassDeclaration,
-                targetPropertyType.declaration as KSClassDeclaration
-            )
-            if (needHandlerNullable) {
-                codeBlockBuilder.beginControlFlow("if (%L.%L == null) ", sourceParameterName, sourcePropertyName)
-                    .addStatement("null")
-                    .nextControlFlow("else")
-                    .add(conversionCode)
-                    .add("\n")
-                    .endControlFlow()
+        if (sourcePropertyType.nullability == Nullability.NULLABLE) {
+            codeBlockBuilder.beginControlFlow("if (%L.%L == null)", sourceParameterName, sourcePropertyName)
+            if (mappingConfiguration != null && mappingConfiguration.defaultValue != "") {
+                val defaultConversionCode = propertyConversion.convert(
+                    "\"${mappingConfiguration.defaultValue}\"",
+                    sourcePropertyName,
+                    String::class,
+                    targetPropertyType.declaration as KSClassDeclaration
+                )
+                codeBlockBuilder.add(defaultConversionCode)
+            } else if (targetPropertyType.nullability == Nullability.NULLABLE) {
+                codeBlockBuilder.add("null")
             } else {
-                codeBlockBuilder.add(conversionCode).add("\n")
+                codeBlockBuilder.addStatement(
+                    "throw IllegalArgumentException(\"%L.%L is null\")",
+                    sourceParameterName,
+                    sourcePropertyName
+                )
             }
-
-            codeBlockBuilder.build()
+            codeBlockBuilder.nextControlFlow("else")
+                .add(conversionCode)
+                .add("\n")
+                .endControlFlow()
+        } else {
+            codeBlockBuilder.add(conversionCode).add("\n")
         }
+
+        return codeBlockBuilder.build()
     }
 
+    override fun generateCode(targetPropertyType: KSType, mappingConfiguration: MappingConfiguration): CodeBlock {
+        val codeBlockBuilder = CodeBlock.builder()
+        codeBlockBuilder.add("val %L = ", mappingConfiguration.target)
+        val defaultConversionCode = propertyConversion.convert(
+            "\"${mappingConfiguration.defaultValue}\"",
+            String::class.qualifiedName!!,
+            targetPropertyType.declaration.qualifiedName!!.asString()
+        )
+        return codeBlockBuilder.add(defaultConversionCode).add("\n").build()
+    }
 }
