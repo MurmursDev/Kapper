@@ -1,5 +1,4 @@
-
-![Maven metadata URL](https://img.shields.io/maven-metadata/v?metadataUrl=https%3A%2F%2Fs01.oss.sonatype.org%2Fcontent%2Frepositories%2Freleases%2Fdev%2Fmurmurs%2Fkapper%2Fkapper%2Fmaven-metadata.xml&color=brightgreen)
+![Maven Central](https://img.shields.io/maven-central/v/dev.murmurs.kapper/kapper?color=brightgreen)
 ![GitHub](https://img.shields.io/github/license/murmursdev/kapper?color=brightgreen)
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg)](https://github.com/murmursdev/kapper/issues)
 
@@ -20,7 +19,6 @@ dependencies {
     implementation("dev.murmurs.kapper:kapper:${latest}")
 }
 ```
-
 
 ### Example
 
@@ -54,14 +52,16 @@ interface UserMapper {
 
 The generated mapper will be named `UserMapperImpl` and will be in the same package as the mapper interface.
 
-
 #### Multiple Targets
-In ActivityPub, Activity has multiple implementations like Create, Update, Delete, etc. But the properties are the same for all of them. 
 
-When mapping from openapi generated single ActivityView classes to Multiple Activity implementations, we can use Kapper to map the properties to an interface:
+In ActivityPub, Activity has multiple implementations like Create, Update, Delete, etc. But the properties are the same
+for all of them.
+
+When mapping from openapi generated single ActivityView classes to Multiple Activity implementations, we can use Kapper
+to map the properties to an interface:
 
 ```kotlin
-data class ActivityView (
+data class ActivityView(
     val id: String,
     val type: String,
     val actor: String,
@@ -109,6 +109,7 @@ interface ActivityMapper {
 ```
 
 ## TODO List
+
 - [x] Publish to maven central repository
 - [x] Add integration test
 - [x] Add examples to project
