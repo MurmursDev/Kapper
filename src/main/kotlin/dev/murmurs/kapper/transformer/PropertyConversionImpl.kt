@@ -6,6 +6,7 @@ import com.google.devtools.ksp.symbol.FunctionKind
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.squareup.kotlinpoet.CodeBlock
+import java.math.BigDecimal
 import java.time.Instant
 import java.time.OffsetDateTime
 import kotlin.reflect.KClass
@@ -362,6 +363,26 @@ class PropertyConversionImpl(private val logger: KSPLogger) : PropertyConversion
             object : CodeBlockGenerator {
                 override fun generate(inputName: String): CodeBlock {
                     return CodeBlock.of("%L.toInstant()", inputName)
+                }
+            }
+        )
+
+        registerBlockCodeGenerator(
+            Instant::class,
+            String::class,
+            object : CodeBlockGenerator {
+                override fun generate(inputName: String): CodeBlock {
+                    return CodeBlock.of("%L.toString()", inputName)
+                }
+            }
+        )
+
+        registerBlockCodeGenerator(
+            Long::class,
+            BigDecimal::class,
+            object : CodeBlockGenerator {
+                override fun generate(inputName: String): CodeBlock {
+                    return CodeBlock.of("BigDecimal(%L)", inputName)
                 }
             }
         )
